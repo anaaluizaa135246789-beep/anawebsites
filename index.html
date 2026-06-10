@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ana Luiza | Desenvolvimento Web</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;600;700&family=Yellowtail&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ==========================================
+           1. DESIGN SYSTEM & VARIÁVEIS (Dark Gourmet)
+           ========================================== */
+        :root {
+            --bg-principal: #121214;
+            --bg-cards: #1A1A1E;
+            --bg-nav: rgba(18, 18, 20, 0.75);
+            --texto-puro: #FFFFFF;
+            --texto-mutado: #A3A3A8;
+            --destaque-purple: #7C3AED;
+            --destaque-purple-hover: #6D28D9;
+            --wpp-color: #25D366;
+            --transicao: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-principal);
+            color: var(--texto-puro);
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, .font-bebas {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .font-cursive {
+            font-family: 'Yellowtail', cursive;
+            color: var(--destaque-purple);
+            text-transform: none;
+            font-size: 1.8rem;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ==========================================
+           2. COMPONENTES REUTILIZÁVEIS
+           ========================================== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 2rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transicao);
+            border: none;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background-color: var(--destaque-purple);
+            color: var(--texto-puro);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--destaque-purple-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--texto-puro);
+            border: 2px solid var(--texto-puro);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--texto-puro);
+            color: var(--bg-principal);
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            font-size: 3.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            text-transform: uppercase;
+        }
+
+        .section-title span {
+            color: var(--destaque-purple);
+        }
+
+        /* ==========================================
+           3. SPA ARCHITECTURE (Gatilhos de Exibição)
+           ========================================== */
+        .spa-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+            min-height: calc(100vh - 80px);
+            padding: 4rem 2rem;
+        }
+
+        .spa-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ==========================================
+           4. HEADER & NAV (Sticky & Translucido)
+           ========================================== */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: var(--bg-nav);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .logo span {
+            color: var(--destaque-purple);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: var(--transicao);
+            opacity: 0.7;
+        }
+
+        .nav-link:hover, .nav-link.active-nav {
+            color: var(--destaque-purple);
+            opacity: 1;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--destaque-purple);
+            transition: var(--transicao);
+        }
+
+        .nav-link:hover::after, .nav-link.active-nav::after {
+            width: 100%;
+        }
+
+        /* ==========================================
+           5. LAYOUT DAS SEÇÕES
+           ========================================== */
+
+        /* --- PROJETOS (Tratada como a Home/Hero Inicial) --- */
+        #projetos {
+            padding: 0;
+        }
+
+        .hero {
+            height: 85vh;
+            background: linear-gradient(rgba(18, 18, 20, 0.4), rgba(18, 18, 20, 0.95)), 
+                        url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1920') center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 1rem;
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            color: var(--texto-mutado);
+            margin-bottom: 2rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Grid de Diferenciais */
+        .diferenciais-container {
+            padding: 5rem 4rem;
+            background-color: var(--bg-principal);
+        }
+
+        .grid-diferenciais {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .card-diferencial {
+            background-color: var(--bg-cards);
+            padding: 3rem 2rem;
+            border-radius: 4px;
+            text-align: center;
+            transition: var(--transicao);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .card-diferencial:hover {
+            transform: translateY(-5px);
+            border-color: var(--destaque-purple);
+        }
+
+        .card-diferencial i {
+            font-size: 2.5rem;
+            color: var(--destaque-purple);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-diferencial h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .card-diferencial p {
+            color: var(--texto-mutado);
+            font-size: 0.95rem;
+        }
+
+        /* Seção Dividida (Vitrine de Projetos) */
+        .vitrine-projetos {
+            display: flex;
+            flex-wrap: wrap;
+            background-color: var(--bg-cards);
+        }
+
+       /* ==========================================
+   PORTFÓLIO CATEGORIZADO (CORREÇÃO DE ESPAÇOS)
+   ========================================== */
+.vitrine-projetos-container {
+    padding: 6rem 2rem; /* Dá espaço acima e abaixo da seção */
+    background-color: var(--bg-cards);
+    width: 100%;
+}
+
+.vitrine-header {
+    text-align: center;
+    max-width: 850px; /* Limita a largura do texto para melhor leitura */
+    margin: 0 auto 4rem auto; /* Centraliza o bloco na tela e joga os botões para baixo */
+    padding: 0 1rem;
+}
+
+.vitrine-header .font-cursive {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 2.2rem; /* Deixa o "Últimos Lançamentos" bem elegante */
+}
+
+.vitrine-header h2 {
+    font-size: 3.8rem;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+}
+
+.vitrine-header p {
+    color: var(--texto-mutado);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+/* Garante que os botões de filtro fiquem bem distribuídos */
+.portfolio-filters {
+    display: flex;
+    justify-content: center;
+    gap: 1.2rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+}
+
+        /* Abas de Filtro */
+        .portfolio-filters {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: transparent;
+            color: var(--texto-puro);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.6rem 1.8rem;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: var(--transicao);
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--destaque-purple);
+            border-color: var(--destaque-purple);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        }
+
+        /* Grid de Imagens */
+        .grid-portfolio {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .portfolio-item {
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background-color: var(--bg-principal);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        /* Comportamento de ocultação via JS do portfólio */
+        .portfolio-item.hidden {
+            display: none;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        .portfolio-img-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* Aspect Ratio 16:9 Cinema */
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .portfolio-img-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+            transition: var(--transicao);
+        }
+
+        /* Efeito de Overlay (Cortina elegante) */
+        .portfolio-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(18, 18, 20, 0.95) 20%, rgba(124, 58, 237, 0.4) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2rem;
+            opacity: 0;
+            transition: var(--transicao);
+            transform: translateY(10px);
+        }
+
+        .portfolio-item:hover .portfolio-img-wrapper img {
+            transform: scale(1.05);
+        }
+
+        .portfolio-item:hover .portfolio-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .portfolio-overlay h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .portfolio-overlay p {
+            font-size: 0.85rem;
+            color: #E2E2E5;
+        }
+
+        @media (max-width: 500px) {
+            .grid-portfolio {
+                grid-template-columns: 1fr;
+            }
+            .vitrine-projetos-container {
+                padding: 4rem 1.5rem;
+            }
+        }
+
+        /* --- QUEM SOU --- */
+        .grid-quem-sou {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card-expert {
+            background-color: var(--bg-cards);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: var(--transicao);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            padding: 2.5rem;
+        }
+
+        .card-expert:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-color: rgba(124, 58, 237, 0.2);
+        }
+
+        .card-expert .icon-wrapper {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(124, 58, 237, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-expert i {
+            font-size: 1.8rem;
+            color: var(--destaque-purple);
+        }
+
+        .card-expert h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-expert p {
+            color: var(--texto-mutado);
+            font-size: 0.95rem;
+        }
+
+        /* --- PERGUNTAS FREQUENTES (FAQ) --- */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .faq-item {
+            background-color: var(--bg-cards);
+            border-radius: 4px;
+            padding: 1.5rem 2rem;
+            cursor: pointer;
+            transition: var(--transicao);
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .faq-item:hover {
+            border-color: rgba(124, 58, 237, 0.3);
+        }
+
+        .faq-pergunta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-pergunta h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .faq-pergunta i {
+            color: var(--destaque-purple);
+            transition: var(--transicao);
+        }
+
+        .faq-resposta {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0, 1, 0, 1);
+            color: var(--texto-mutado);
+            margin-top: 0;
+            font-size: 0.95rem;
+        }
+
+        .faq-item.open .faq-resposta {
+            max-height: 1000px;
+            transition: all 0.3s cubic-bezier(1, 0, 1, 0);
+            margin-top: 1rem;
+        }
+
+        .faq-item.open .faq-pergunta i {
+            transform: rotate(180deg);
+        }
+
+        /* --- CONTATO --- */
+        .grid-contato {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto 4rem auto;
+        }
+
+        .card-contato {
+            background-color: var(--bg-cards);
+            padding: 2.5rem 2rem;
+            border-radius: 4px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+
+        .card-contato i {
+            font-size: 2rem;
+            color: var(--destaque-purple);
+            margin-bottom: 1rem;
+        }
+
+        .card-contato h3 {
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-contato p {
+            color: var(--texto-mutado);
+            white-space: pre-line;
+        }
+
+        .mapa-mock {
+            max-width: 1200px;
+            height: 350px;
+            margin: 0 auto;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(rgba(18, 18, 20, 0.2), rgba(18, 18, 20, 0.4)),
+                        url('https://images.unsplash.com/photo-1524661135339-9140b00782ee?q=80&w=1200') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .mapa-overlay {
+            background-color: rgba(26, 26, 30, 0.9);
+            padding: 2rem;
+            border-radius: 4px;
+            text-align: center;
+            border: 1px solid var(--destaque-purple);
+            max-width: 90%;
+        }
+
+        /* ==========================================
+           6. COMPONENTES FIXOS (FOOTER & FLOATER)
+           ========================================== */
+        footer {
+            background-color: #0A0A0C;
+            padding: 3rem 4rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 1.3rem;
+        }
+
+        .social-icons a:hover {
+            color: var(--destaque-purple);
+            transform: translateY(-3px);
+            transition: var(--transicao);
+        }
+
+        .wpp-floater {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--wpp-color);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            z-index: 9999;
+            transition: var(--transicao);
+        }
+
+        .wpp-floater:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        /* ==========================================
+           7. MEDIA QUERIES (RESPONSIVIDADE)
+           ========================================== */
+        @media (max-width: 900px) {
+            .header {
+                padding: 0 2rem;
+            }
+            .nav-menu {
+                gap: 1.5rem;
+            }
+            .hero h1 {
+                font-size: 3.5rem;
+            }
+            .vitrine-col {
+                padding: 3rem 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                height: auto;
+                padding: 1.5rem;
+                gap: 1rem;
+            }
+            .header .btn {
+                display: none; /* Esconde botão do header no mobile para limpar layout */
+            }
+            .nav-menu {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .section-title {
+                font-size: 2.5rem;
+            }
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
+            .footer-links {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">
+            Ana Luiza <span>| Dev Web</span>
+        </div>
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="#projetos" class="nav-link active-nav" data-target="projetos">Projetos</a></li>
+                <li><a href="#quem-sou" class="nav-link" data-target="quem-sou">Quem Sou</a></li>
+                <li><a href="#faq" class="nav-link" data-target="faq">FAQ</a></li>
+                <li><a href="https://wa.me/559982781057"#contato" class="nav-link" data-target="contato">Contato</a></li>
+            </ul>
+        </nav>
+        <button class="btn btn-primary" onclick="navegarPara('contato')">Peça Agora</button>
+    </header>
+
+    <main id="projetos" class="spa-section active">
+        <section class="hero">
+            <span class="font-cursive">Premium Code Experience</span>
+            <h1>Aplicações Web de Alto Padrão</h1>
+            <p>Desenvolvimento sob medida com arquitetura escalável, design refinado e performance impecável para marcas que exigem o extraordinário.</p>
+            
+            <div class="hero-buttons">
+                <button class="btn btn-primary" onclick="navegarPara('contato')">Iniciar Projeto</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('meu-portfolio').scrollIntoView({ behavior: 'smooth' })">Conhecer Portfólio</button>
+            </div>
+        </section>
+
+        <section class="diferenciais-container">
+            <div class="grid-diferenciais">
+                <div class="card-diferencial">
+                    <i class="fa-solid fa-code"></i>
+                    <h3>Código Artesanal</h3>
+                    <p>Desenvolvido linha por linha de forma nativa e sem excessos. Estrutura limpa (Clean Code) focada em estabilidade de longo prazo.</p>
+                </div>
+                <div class="card-diferencial">
+                    <i class="fa-solid fa-bolt"></i>
+                    <h3>Performance Extrema</h3>
+                    <p>Sites que carregam em menos de 1.5s. Otimização máxima de assets para garantir conversão e ranqueamento topo de linha no Google.</p>
+                </div>
+                <div class="card-diferencial">
+                    <i class="fa-solid fa-gem"></i>
+                    <h3>Design Exclusivo</h3>
+                    <p>Sistemas construídos seguindo identidade visual proprietária (DOP). Interfaces refinadas baseadas na experiência do usuário (UX).</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="meu-portfolio" class="vitrine-projetos-container">
+            <div class="vitrine-header">
+                <span class="font-cursive">Últimos Lançamentos</span>
+                <h2>Ecossistemas Digitais de Sucesso</h2>
+                <p>Veja como transformo wireframes em plataformas de alta performance. De Landing Pages disruptivas a Single Page Applications complexas, cada entrega é tratada como uma obra de arte da engenharia de software.</p>
+                
+                <div class="portfolio-filters">
+                    <button class="filter-btn active" data-filter="all">Ver Todos</button>
+                    <button class="filter-btn" data-filter="bellara">Bellara Studio</button>
+                    <button class="filter-btn" data-filter="kairos">Kairós Premium</button>
+                </div>
+            </div>
+
+<div class="grid-portfolio">
+        
+        <div class="portfolio-item kairos">
+            <div class="portfolio-img-wrapper">
+                <img src="homekairos1.jpg" alt="Kairós Premium Home">
+                <div class="portfolio-overlay">
+                    <h3>Kairós Premium</h3>
+                    <p>Landing Page - Arte, Fé e Devoção</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="portfolio-item kairos">
+            <div class="portfolio-img-wrapper">
+                <img src="homekairos.jpg" alt="Kairós Diferenciais">
+                <div class="portfolio-overlay">
+                    <h3>Kairós Premium</h3>
+                    <p>Seção Institucional - Matéria-Prima e Valores</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="portfolio-item kairos">
+            <div class="portfolio-img-wrapper">
+                <img src="catkairos.jpg" alt="Kairós Catálogo">
+                <div class="portfolio-overlay">
+                    <h3>Kairós Premium</h3>
+                    <p>E-commerce / Grade de Produtos Sacros</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="portfolio-item bellara">
+            <div class="portfolio-img-wrapper">
+                <img src="homebellara.jpg" alt="Bellara Studio Home">
+                <div class="portfolio-overlay">
+                    <h3>Bellara Studio</h3>
+                    <p>Landing Page - Alta Costura & Autenticidade</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="portfolio-item bellara">
+            <div class="portfolio-img-wrapper">
+                <img src="catbellara.jpg" alt="Bellara Catálogo">
+                <div class="portfolio-overlay">
+                    <h3>Bellara Studio</h3>
+                    <p>E-commerce / Catálogo de Moda Inverno/Primavera</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+           
+        </section>
+</section>
+
+    <section id="quem-sou" class="spa-section">
+        <h2 class="section-title">Quem <span>Sou</span></h2>
+        
+        <div class="grid-quem-sou">
+            <div class="card-expert">
+                <div class="icon-wrapper"><i class="fa-solid fa-laptop-code"></i></div>
+                <h3>Desenvolvedora Full-Stack</h3>
+                <p>Especialista em construir soluções de ponta a ponta. Domínio avançado de tecnologias modernas de ecossistema JavaScript para entregar interfaces fluidas e reativas.</p>
+            </div>
+            <div class="card-expert">
+                <div class="icon-wrapper"><i class="fa-solid fa-microchip"></i></div>
+                <h3>Hardware Enthusiast</h3>
+                <p>Minha paixão por arquitetura física se reflete no software. Compreendo o funcionamento de baixo nível do processamento, garantindo que o código rode de forma otimizada no hardware do cliente.</p>
+            </div>
+            <div class="card-expert">
+                <div class="icon-wrapper"><i class="fa-solid fa-gamepad"></i></div>
+                <h3>Creative Mindset</h3>
+                <p>Com experiência no desenvolvimento independente de jogos 2D, trago lógica de animações complexas, colisões e gerenciamento de estados dinâmicos direto para o desenvolvimento web.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="spa-section">
+        <h2 class="section-title">Perguntas <span>Frequentes</span></h2>
+        
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-pergunta">
+                    <h3>Quanto tempo demora a entrega de um projeto?</h3>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="faq-resposta">
+                    <p>O tempo varia conforme a complexidade. Uma Landing Page Premium geralmente é entregue entre 7 a 15 dias úteis, enquanto aplicações SPA mais robustas com integrações de API podem levar de 30 a 45 dias.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-pergunta">
+                    <h3>O site já vem otimizado para o Google (SEO)?</h3>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="faq-resposta">
+                    <p>Sim. Absolutamente todos os projetos são desenvolvidos utilizando tags semânticas do HTML5, metatags estruturadas, otimização de imagens de última geração e carregamento assíncrono para garantir pontuação máxima no Google Lighthouse.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-pergunta">
+                    <h3>Como funciona o suporte pós-entrega?</h3>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="faq-resposta">
+                    <p>Ofereço 30 dias de garantia e suporte técnico completo para monitoramento de estabilidade sem custos adicionais. Também disponibilizo planos mensais de manutenção para atualizações contínuas de segurança e conteúdo.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contato" class="spa-section">
+        <h2 class="section-title">Vamos Criar Algo <span>Épico</span></h2>
+        
+        <div class="grid-contato">
+            <div class="card-contato">
+                <i class="fa-solid fa-location-dot"></i>
+                <h3>Atendimento</h3>
+                <p>Bacabal - Maranhão<br>Disponibilidade Remota Global</p>
+            </div>
+            <div class="card-contato">
+                <i class="fa-solid fa-phone"></i>
+                <h3>Telefone / Whatsapp</h3>
+                <p>+55 (99) 98278-1057<br>Respostas em até 2 horas</p>
+            </div>
+            <div class="card-contato">
+                <i class="fa-solid fa-clock"></i>
+                <h3>Horários Dev</h3>
+                <p>Segunda a Sexta: 08h às 18h<br>Sábados: 09h às 13h</p>
+            </div>
+        </div>
+
+        <div class="mapa-mock">
+            <div class="mapa-overlay">
+                <h3><i class="fa-solid fa-satellite-dish"></i> Conexão Segura</h3>
+                <p style="color: var(--texto-mutado); font-size: 0.9rem; margin-top: 0.5rem;">Desenvolvimento de software ágil operando diretamente de Bacabal/MA para o mundo.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div>
+            <p>&copy; 2026 Ana Luiza | Desenvolvimento Web. Todos os direitos reservados.</p>
+        </div>
+        <div class="footer-links">
+            <a href="#" onclick="event.preventDefault(); navegarPara('projetos')">Projetos</a>
+            <a href="#" onclick="event.preventDefault(); navegarPara('quem-sou')">Quem Sou</a>
+            <a href="#" onclick="event.preventDefault(); navegarPara('faq')">FAQ</a>
+        </div>
+        <div class="social-icons">
+            <a href="#" target="_blank"><i class="fa-brands fa-github"></i></a>
+            <a href="#" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+            <a href="#" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+    </footer>
+
+    <a href="https://wa.me/559982781057?text=Olá%20Ana%20Luiza,%20gostaria%20de%20solicitar%20um%20orçamento%20de%20site!" class="wpp-floater" target="_blank">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const botoesFiltro = document.querySelectorAll('.filter-btn');
+            const itensPortfolio = document.querySelectorAll('.portfolio-item');
+
+            // Garante que tudo comece aparecendo na tela com opacidade total
+            itensPortfolio.forEach(item => {
+                item.style.display = 'block';
+                item.style.opacity = '1';
+            });
+
+            // Adiciona o evento de clique em cada botão de filtro
+            botoesFiltro.forEach(botao => {
+                botao.addEventListener('click', function() {
+                    // Controla o visual do botão ativo
+                    botoesFiltro.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Pega o nome do filtro selecionado (all, bellara ou kairos)
+                    const categoriaAlvo = this.getAttribute('data-filter');
+
+                    itensPortfolio.forEach(item => {
+                        // Verifica se clicou em "Ver Todos" OU se o card tem a classe correspondente
+                        if (categoriaAlvo === 'all' || item.classList.contains(categoriaAlvo)) {
+                            item.style.display = 'block';
+                            item.style.opacity = '1';
+                        } else {
+                            item.style.display = 'none';
+                            item.style.opacity = '0';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
